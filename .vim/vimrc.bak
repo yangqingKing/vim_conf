@@ -1,0 +1,371 @@
+" Configuration file for vim
+"set modelines=0		" CVE-2007-2438
+
+" Normally we use vim-extensions. If you want true vi-compatibility
+" remove change the following statements
+"set nocompatible	" Use Vim defaults instead of 100% vi compatibility
+"set backspace=2		" more powerful backspacing
+
+" Don't write backup file if vim is being called by "crontab -e"
+"au BufWrite /private/tmp/crontab.* set nowritebackup nobackup
+" Don't write backup file if vim is being called by "chpass"
+"au BufWrite /private/etc/pw.* set nowritebackup nobackup
+
+"
+" Vim Config
+" @author yangqing
+"
+"
+"
+"colorscheme desert
+"colorscheme obsidian
+
+set termencoding=utf-8
+set fileformat=unix
+set encoding=utf-8
+set ignorecase
+set encoding=utf-8
+set fileencodings=utf-8,chinese,latin-1
+if has("win32")
+    "解决菜单乱码
+    source $VIMRUNTIME/delmenu.vim
+    source $VIMRUNTIME/menu.vim
+    set fileencoding=chinese
+    set guioptions=egmLt
+else
+    set fileencodings=utf-8,ucs-bom,gb18030,gbk,gb2312,cp936
+endif
+""解决consle输出乱码
+language messages zh_CN.utf-8
+set nobackup
+"set clipboard="*
+set sts=4
+set tabstop=4
+set expandtab
+set nocompatible    " Use Vim defaults (much better!)
+set bs=indent,eol,start     " allow backspacing over everything in insert mode
+set ai          " always set autoindenting on
+set noswapfile
+"set backup     " keep a backup file
+set viminfo='20,\"50    " read/write a .viminfo file, don't store more
+set history=50      " keep 50 lines of command line history " than 50 lines of registers
+set shiftwidth=4
+set ruler       " show the cursor position all the time
+set nu
+set incsearch
+set cscopequickfix=s-,c-,d-,i-,t-,e-
+set textwidth=500
+set tabline=%!Q_TabLine()
+set laststatus=2
+"set statusline=%2*\[\%{Q_Mode()}\]%1*\ %f\ %0*%h%m%r%h%w%y\ \[%{&ff}\|%{&fenc}\]%<%=\[%{strftime(\"%y\.%m\.%d\ %H:%M:%S\",getftime(expand(\"%:p\")))}\]\ line:%l\,%v\ col:%c\ sum:%L\ %p%% 
+set statusline=%2*\[\%{Q_Mode()}\]%1*\ %f\ %0*%h%m%r%h%w%y\ \[%{&ff}\|%{&fenc}\]%<%=\ line:%l\,%v\ col:%c\ sum:%L\ %p%%\ \[%{strftime(\"%y\.%m\.%d\ %H:%M:%S\",getftime(expand(\"%:p\")))}\]
+set showcmd
+set list
+set listchars=tab:>-,trail:>,extends:*,precedes:<
+set pastetoggle=<F1>
+"set listchars=tab:>-,trail:>,extends:*,precedes:<,eol:$
+highlight WhitespaceEOL ctermbg=red guibg=red
+match WhitespaceEOL /\s\+$/
+
+
+" Don't wake up system with blinking cursor:
+" http://www.linuxpowertop.org/known.php
+let &guicursor = &guicursor . ",a:blinkon0"
+let Tlist_Show_One_File=1
+let Tlist_Exit_OnlyWindow=1
+let Tlist_Use_Right_Window=1
+let Tlist_Sort_Type="name"
+let Tlist_GainFocus_On_ToggleOpen=0
+let Tlist_Display_Prototype=0
+let NERDTreeQuitOnOpen=0
+let NERDTreeShowBookmarks=0
+let NERDTreeMinimalUI=1
+let g:debuggerPort = 9010
+let mapleader=","
+let g:ctrlp_by_filename = 0
+let g:ctrlp_map = '<c-p>'
+let g:ctrlp_cmd = 'CtrlP ./'
+let g:ctrlp_max_height=35
+
+let g:pdv_cfg_Author = "yangqing"
+au TabLeave * let g:lastTabNr = tabpagenr()
+"au InsertEnter * hi StatusLine term=reverse ctermfg=255 ctermbg=5 gui=undercurl guisp=Magenta
+"au InsertLeave * hi StatusLine term=reverse ctermfg=253 ctermbg=58 gui=bold,reverse
+au InsertLeave * call LeaveStatuslineColor()
+au InsertEnter * call InsertStatuslineColor(v:insertmode)
+"au InsertChange * call InsertStatuslineColor(v:insertmode)
+
+" default the statusline to green when entering Vim
+
+"if v:lang =~ "utf8$" || v:lang =~ "UTF-8$"
+"   set fileencodings=ucs-bom,utf-8,latin1
+"endif
+
+" Only do this part when compiled with support for autocommands
+if has("autocmd")
+  augroup redhat
+  autocmd!
+  " In text files, always limit the width of text to 78 characters
+  autocmd BufRead *.txt set tw=78
+  " When editing a file, always jump to the last cursor position
+  autocmd BufReadPost *
+  \ if line("'\"") > 0 && line ("'\"") <= line("$") |
+  \   exe "normal! g'\"" |
+  \ endif
+  " don't write swapfile on most commonly used directories for NFS mounts or USB sticks
+  autocmd BufNewFile,BufReadPre /media/*,/mnt/* set directory=~/tmp,/var/tmp,/tmp
+  " start with spec file template
+  autocmd BufNewFile *.spec 0r /usr/share/vim/vimfiles/template.spec
+  augroup END
+  autocmd StdinReadPre * let s:std_in=1
+ " autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+
+endif
+
+" Switch syntax highlighting on, when the terminal has colors
+" Also switch on highlighting the last used search pattern.
+if &t_Co > 2 || has("gui_running")
+  syntax on
+  set hlsearch
+endif
+
+filetype plugin on
+filetype plugin indent on
+
+if &term=="xterm"
+     set t_Co=8
+     set t_Sb=[4%dm
+     set t_Sf=[3%dm
+endif
+
+"autocmd BufWrite * call write()
+
+au FileType php call AddPHPFuncList()
+function! AddPHPFuncList()
+    set dictionary-=$VIMRUNTIME/plugin/php_funclist.txt dictionary+=$VIMRUNTIME/plugin/php_funclist.txt
+    set complete-=k complete+=k
+endfunction
+
+let g:colorIndex = 0
+
+function! InsertStatuslineColor(mode)
+    if a:mode == 'i'
+        hi User2 term=reverse ctermfg=255 ctermbg=5 gui=undercurl guisp=Magenta
+    elseif a:mode == 'r'
+        hi statusline guibg=blue
+    else
+        hi statusline guibg=red
+    endif
+endfunction
+
+function! LeaveStatuslineColor()
+    hi StatusLine term=reverse ctermfg=253 ctermbg=58 gui=bold,reverse
+    hi User1 term=reverse cterm=bold ctermfg=14 ctermbg=22
+    hi User2 term=reverse ctermfg=0 ctermbg=23
+endfunction
+
+function! Highlight_Word()
+    let w = expand("<cword>")
+    let color = ['ErrorMsg', 'DiffChange', 'CursorLine', 'WildMenu', 'DiffAdd', 'SpellLocal']
+    call matchadd(color[g:colorIndex % len(color)], '\<'.w.'\>')
+    let g:colorIndex = g:colorIndex + 1
+endfunction
+
+function! Highlight_Word_Clear()
+    call clearmatches()
+endfunction
+
+function! SudoWrite()
+    let current = getpos('.')
+    execute '%!sudo tee %'
+    edit!
+    call setpos('.', current)
+endfunction
+
+function! Search_Define()
+    let word = expand("<cword>")
+    :tabnew
+        execute 'vimgrep /function\s\+'.word.'\|class\s\+'.word."/ **/*.php"
+endfunction
+
+function! Search_Keyword()
+    let word = expand("<cword>")
+    :tabnew
+        execute 'vimgrep /'.word."/ **/*.php"
+endfunction
+
+function! Q_Find_Define()
+    let word = expand("<cword>")
+    :tabnew
+    execute 'cs find g '.word
+endfunction
+
+function! Q_Reload_Vimrc_Config()
+    source /etc/vimrc
+    echo 'reload vimrc finish'
+endfunction
+
+function! Q_Mode()
+    let mode = mode()
+    if mode == 'n'
+        return 'NORMAL'
+    elseif mode == 'i'
+        return 'INSERT'
+    elseif mode == 'v'
+        return 'VISUAL'
+    elseif mode == 'V'
+        return 'VISUAL-C'
+    elseif mode == '!'
+        return 'LINUX'
+    else
+        return mode
+endfunction
+
+function! Q_Help()
+    echo ':%s/%body%/hello/g   #gc替换确认'
+    echo ':set filetype=html '
+    echo ':set syntax=perl   #语法高亮'
+    echo ':set foldmethod=indent   #缩进折叠'
+    echo ':set iskeyword=a-z,A-Z,_,48-57  #区分单词'
+    echo ':call s:FindInTaglist("<cword>")  #搜索tag'
+    echo 'grep -rn "PHP_FUNCTION(socket_accept)" ./ext  #搜索php源码'
+endfunction
+
+function! Q_Test1()
+    #let namespace = system("awk '/^namespace\ (.*)\;/{print $2}' ".bufname("%"));
+    let commentline = line (".")+1
+    call append(commentline,'var_dump($);exit;')
+    exe commentline+1
+    exe 'norm! f$'
+endfunction
+
+function! Q_PHP_Debug()
+    let commentline = line (".")
+    call append(commentline,'var_dump($);exit;')
+    exe commentline+1
+    exe 'norm! f$'
+endfunction
+
+function! Q_TabLabel(n)
+  let buflist = tabpagebuflist(a:n)
+  let winnr = tabpagewinnr(a:n)
+  let filename = bufname(buflist[winnr - 1])
+  return strpart(filename,strridx(filename,'/')+1)
+endfunction
+
+function! Q_TabLine()
+    let s = ''
+    for i in range(tabpagenr('$'))
+    let tabnr = i + 1 " range() starts at 0
+    let winnr = tabpagewinnr(tabnr)
+    let buflist = tabpagebuflist(tabnr)
+    let bufnr = buflist[winnr - 1]
+    let bufname = fnamemodify(bufname(bufnr), ':t')
+
+    let s .= '%' . tabnr . 'T'
+    let s .= (tabnr == tabpagenr() ? '%#TabLineSel#' : '%#TabLine#')
+    let s .= '[' . tabnr
+
+    let n = tabpagewinnr(tabnr,'$')
+    if n > 1 | let s .= ':' . n | endif
+
+    let s .= empty(bufname) ? ' [No Name] ' : ' ' . bufname . ' '
+
+    let bufmodified = getbufvar(bufnr, "&mod")
+    if bufmodified | let s .= '+ ' | endif
+    endfor
+    let s .= '%#TabLineFill#'
+    return s
+endfunction
+
+" linux 多终端无缝复制黏贴
+" 配合autohotkey，达到与window无缝复制黏贴
+" 不解释!!!
+function! Q_Copy()
+   let var_q =  getreg('"')
+   let var_amode = getregtype('"')
+   call setreg('q', var_q, var_amode)
+
+   let reg_q = split(var_q, "\n")
+   call writefile(reg_q, $HOME.'/.vim_qreg')
+   echo "复制成功, 呵呵"
+endfunction
+
+function! Q_Paste()
+   let var_q =  readfile($HOME.'/.vim_qreg')
+   let var_reg = join(var_q, "\n")
+
+   call setreg('q', var_reg)
+   echo "执行[ \"qp ]进行粘贴"
+   exe 'norm! "qp'
+endfunction
+
+
+" MapList
+map q :q<CR>
+map ` :tabfirst<CR>
+nnoremap <silent> J :tabp<CR>
+nnoremap <silent> K :tabn<CR>
+nmap <silent> mm :qa<CR>
+nmap <space> <c-e>j
+map <silent> gj :call Highlight_Word()<CR>
+map <silent> gJ :call Highlight_Word_Clear()<CR>
+"map <F1> :call Search_Define()<CR>
+map <F2> :call FindInTaglistHere()<CR>
+map <F3> :call Search_Keyword()<CR>
+map <F4> :Ffile<CR>/
+map <F5> :%retab!<CR>
+map <F9> gT
+map <F10> gt
+map <F11> :TlistToggle<CR>
+map <F12> :NERDTreeToggle<CR>
+" 复制
+vmap <silent><C-c> :y q<CR>
+"map <C-p> :pu q<CR>
+"map <leader>c "qy
+map <leader>c "qy<CR>:call Q_Copy()<CR>
+"map <leader>p "qp
+map <leader>p :call Q_Paste()<CR>
+xnoremap p pgvy
+
+nnoremap <C-n> :NERDTreeToggle<CR>
+nnoremap <C-t> :TlistToggle<CR>
+nnoremap <leader>j :cn<CR>
+nnoremap <leader>k :cp<CR>
+map <leader>g :call Q_PHP_Debug()<CR>a
+nnoremap <leader>b :CtrlPBuffer<CR>
+
+nnoremap <leader>d "=strftime("%Y-%m-%d %H:%M:%S")<CR>gp
+
+"noremap <C-k> dd<UP>P
+"noremap <C-j> ddp
+map <leader>t 0ggv G $
+map <leader>y :call PhpDocSingle()<CR>
+map <leader>o :NERDTreeFind<CR>
+map <leader>l :%s/  *$//g<CR>
+map <silent><leader>ss :call Q_Reload_Vimrc_Config()<cr>
+" nnoremap <Tab> :exec "tabnext ".g:lastTabNr<CR>
+
+inoremap <C-j> <Down>
+inoremap <C-k> <Up>
+inoremap <C-l> <Right>
+inoremap <special> <C-h> <Left>
+" easy motion
+let g:EasyMotion_leader_key='.'
+"let g:EasyMotion_do_mapping = 0
+"nmap r <Plug>(easymotion-j)
+" let g:EasyMotion_smartcase = 1
+"nmap <leader>j <Plug>(easymotion-j)
+"nmap <leader>k <Plug>(easymotion-k)
+
+command! Qhelp :call Q_Help()
+command! Test :call Q_Test1()
+command! W :w
+command! Qa :qa
+command! Qtab %retab!<CR>
+command! -nargs=0 Sudow call SudoWrite()
+
+hi User1 term=reverse cterm=bold ctermfg=14 ctermbg=22
+hi User2 term=reverse ctermfg=0 ctermbg=23
+
+"set iskeyword="a-z,A-Z,_,48-57"   " 区分单词
